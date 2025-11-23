@@ -1,17 +1,15 @@
-// api/chat.js
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const { message } = req.body;
-
   try {
+    const { message } = req.body;
+    
+    // Debugging: Print to Vercel Logs to prove the function ran
+    console.log("Function started. Message received:", message);
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` // Key is hidden here
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
@@ -20,10 +18,11 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    
-    // Send the AI's reply back to the frontend
+    console.log("OpenAI responded"); // Check logs for this
+
     res.status(200).json({ reply: data.choices[0].message.content });
   } catch (error) {
-    res.status(500).json({ error: 'Error processing request' });
+    console.error("Backend Crash:", error); // This will show in Vercel Logs
+    res.status(500).json({ error: error.message });
   }
 }
