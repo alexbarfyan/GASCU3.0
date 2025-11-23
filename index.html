@@ -1,19 +1,12 @@
-<!DOCTYPE html>
-<html>
-<body>
-    <h2>My AI Chatbot</h2>
-    <input type="text" id="userInput" placeholder="Type a message...">
-    <button onclick="sendMessage()">Send</button>
-    <p id="response"></p>
-
-    <script>
-        async function sendMessage() {
-            const input = document.getElementById('userInput').value;
-            const responseText = document.getElementById('response');
-            
-            responseText.innerText = "Thinking...";
-            
-            // Send data to YOUR backend function, not OpenAI directly
+<script>
+    async function sendMessage() {
+        const input = document.getElementById('userInput').value;
+        const responseText = document.getElementById('response');
+        
+        responseText.innerText = "Thinking...";
+        
+        try {
+            // 1. Send the request
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
@@ -22,9 +15,19 @@
                 body: JSON.stringify({ message: input })
             });
 
+            // 2. Check if the network request failed
+            if (!response.ok) {
+                throw new Error(`Server Error: ${response.status} ${response.statusText}`);
+            }
+
+            // 3. Parse the data
             const data = await response.json();
             responseText.innerText = data.reply;
+
+        } catch (error) {
+            // 4. Show the error on the screen
+            console.error(error);
+            responseText.innerText = "Error: " + error.message;
         }
-    </script>
-</body>
-</html>
+    }
+</script>
